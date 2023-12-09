@@ -1,5 +1,3 @@
-import pprint
-
 obj = {}
 
 with open("5.txt") as f:
