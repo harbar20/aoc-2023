@@ -26,7 +26,7 @@ cardRanks = {
 def jCheck(string, count):
     if "J" in string:
         for i in range(count["J"]):
-            
+            # test
 
 def hand(string):    
     # Counting instances of each letter
