@@ -23,12 +23,19 @@ cardRanks = {
     "A": 13
 }
 
-def jCheck(string, count):
+def jCheck(string, count, scoreSoFar):
+    newMax = scoreSoFar
     if "J" in string:
-        for i in range(count["J"]):
-            # test
+        for card in count.keys():
+            if card == "J": continue
+            
+            newString = string.replace("J", card, 1)
+            
+            newMax = max(hand(newString), newMax)
+    
+    return newMax
 
-def hand(string):    
+def oldHand(string):    
     # Counting instances of each letter
     count = {}
     for i in string:
@@ -52,40 +59,52 @@ def hand(string):
         else:
             return "Three of a kind"
     
-    values = {
+    innerValues = {
         1: "Five of a kind",
         4: "One Pair",
         5: "High card"
     }
     
-    return values[len(numbers)]
+    return innerValues[len(numbers)]
+
+def hand(string):    
+    # Counting instances of each letter
+    count = {}
+    for i in string:
+        if i in count:
+            count[i] += 1
+        else:
+            count[i] = 1
+    
+    numbers = list(count.values())
+    
+    if len(numbers) == 2:
+        if numbers == [2, 3] or numbers == [3, 2]:
+            return jCheck(string, count, values["Full house"])
+        else:
+            return jCheck(string, count, values["Four of a kind"])
+
+    elif len(numbers) == 3:
+        if numbers == [1, 2, 2] or numbers == [2, 1, 2] or numbers == [2, 2, 1]:
+            return jCheck(string, count, values["Two pair"])
+        else:
+            return jCheck(string, count, values["Three of a kind"])
+    
+    innerValues = {
+        1: "Five of a kind",
+        4: "One Pair",
+        5: "High card"
+    }
+    
+    return jCheck(string, count, values[innerValues[len(numbers)]])
 
 def evaluate(h):
-    value = values[hand(h)]
+    value = hand(h)
     
     for i in range(len(h)):
-        c = h[i]
-        value += cardRanks[c] * (100**(len(h) - i - 1))
+        value += cardRanks[h[i]] * (100**(len(h) - i - 1))
     
     return value
-
-def compare(handOne, handTwo):
-    valueOne = values[hand(handOne)]
-    valueTwo = values[hand(handTwo)]
-    
-    if valueOne > valueTwo:
-        return valueOne
-    elif valueOne < valueTwo:  
-        return valueTwo
-
-    i = 0
-    while valueOne[i] == valueTwo[i]:
-        i += 1
-    
-    if cardRanks[handOne[i]] > cardRanks[handTwo[i]]:
-        return valueOne
-    else:
-        return valueTwo
 
 cards = {}
 with open("7.txt") as f:
@@ -94,12 +113,8 @@ with open("7.txt") as f:
         cards[splits[0]] = int(splits[1])
 
 hands = sorted(list(cards.keys()), key=evaluate)
-print(hands)
 total = 0
-for i in range(1, len(hands)+1):
-    print(hands[i-1])
-    print(evaluate(hands[i-1]))
-    print()
-    total += cards[hands[i-1]] * i
+for i in range(len(hands)):
+    total += cards[hands[i]] * (i + 1)
 
 print(total)
